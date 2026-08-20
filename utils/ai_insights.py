@@ -99,9 +99,11 @@ def generate_local_insights(df, facts):
     # Insights Rules
     if len(numeric_cols) >= 2:
         corr_matrix = df[numeric_cols].corr().abs()
-        np.fill_diagonal(corr_matrix.values, 0)
-        max_corr_idx = corr_matrix.stack().idxmax()
-        val = corr_matrix.loc[max_corr_idx]
+        corr_values = corr_matrix.to_numpy(copy=True)
+        np.fill_diagonal(corr_values, 0)
+        corr_matrix_copy = pd.DataFrame(corr_values, index=corr_matrix.index, columns=corr_matrix.columns)
+        max_corr_idx = corr_matrix_copy.stack().idxmax()
+        val = corr_matrix_copy.loc[max_corr_idx]
         if val > 0.5:
             insights.append(f"Strong statistical correlation ({val:.2f}) found between '{max_corr_idx[0]}' and '{max_corr_idx[1]}'.")
 
