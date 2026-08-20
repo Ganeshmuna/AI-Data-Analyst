@@ -136,3 +136,57 @@ def create_forecast_chart(historical_df, forecast_df, date_col, value_col):
         margin=dict(l=20, r=20, t=50, b=20)
     )
     return fig
+
+def create_powerbi_donut_chart(df, names_col, values_col, title=""):
+    """PowerBI style dark donut chart with gold/cyan/blue rings matching reference image."""
+    colors = ['#F59E0B', '#3B82F6', '#10B981', '#EC4899', '#8B5CF6']
+    fig = px.pie(
+        df, names=names_col, values=values_col, hole=0.6,
+        title=title, color_discrete_sequence=colors
+    )
+    fig.update_layout(
+        paper_bgcolor='#0D0F12',
+        plot_bgcolor='#0D0F12',
+        font=dict(color='#F59E0B', family="sans-serif"),
+        title=dict(font=dict(size=14, color='#F59E0B')),
+        margin=dict(l=10, r=10, t=35, b=10),
+        legend=dict(orientation="v", font=dict(color='#94A3B8', size=10)),
+        showlegend=True
+    )
+    fig.update_traces(textposition='inside', textinfo='percent+label', marker=dict(line=dict(color='#0D0F12', width=2)))
+    return fig
+
+def create_powerbi_timeline_chart(df, date_col, value_col, title=""):
+    """PowerBI style spiky timeline line chart matching reference image."""
+    fig = px.line(df, x=date_col, y=value_col, title=title)
+    fig.update_traces(line=dict(color='#38BDF8', width=2))
+    fig.update_layout(
+        paper_bgcolor='#0D0F12',
+        plot_bgcolor='#0D0F12',
+        font=dict(color='#F59E0B'),
+        title=dict(font=dict(size=14, color='#FFFFFF')),
+        margin=dict(l=20, r=20, t=35, b=20),
+        xaxis=dict(showgrid=True, gridcolor='#1E293B', color='#94A3B8'),
+        yaxis=dict(showgrid=True, gridcolor='#1E293B', color='#94A3B8'),
+        hovermode="x unified"
+    )
+    return fig
+
+def create_powerbi_dual_bar_chart(df, cat_col, val1_col, val2_col, title=""):
+    """PowerBI style dual quarterly bar chart (Sum of Profit & Sum of Sales)."""
+    fig = go.Figure()
+    fig.add_trace(go.Bar(x=df[cat_col], y=df[val1_col], name=f"Sum of {val1_col}", marker_color='#3B82F6'))
+    fig.add_trace(go.Bar(x=df[cat_col], y=df[val2_col], name=f"Sum of {val2_col}", marker_color='#F59E0B'))
+    fig.update_layout(
+        barmode='group',
+        paper_bgcolor='#0D0F12',
+        plot_bgcolor='#0D0F12',
+        font=dict(color='#FFFFFF'),
+        title=dict(font=dict(size=14, color='#FFFFFF')),
+        margin=dict(l=20, r=20, t=35, b=20),
+        legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1, font=dict(color='#94A3B8')),
+        xaxis=dict(showgrid=False, color='#94A3B8'),
+        yaxis=dict(showgrid=True, gridcolor='#1E293B', color='#94A3B8')
+    )
+    return fig
+

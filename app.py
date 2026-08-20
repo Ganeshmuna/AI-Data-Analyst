@@ -196,11 +196,12 @@ with c5:
 with c6:
     st.markdown("""
         <div class="feature-box">
-            <div class="feature-icon">💬</div>
-            <div class="feature-title">Chat with Data</div>
-            <div class="feature-desc">Natural language assistant to query your dataset directly using natural conversational language.</div>
+            <div class="feature-icon">🎛️</div>
+            <div class="feature-title">Executive PowerBI Dashboards</div>
+            <div class="feature-desc">Black & Gold PowerBI-style executive dashboards with 20+ Industry Templates and smart auto column mapping.</div>
         </div>
     """, unsafe_allow_html=True)
 
 st.markdown("---")
-st.info("💡 **Quick Start Guide:** Use the left sidebar navigation menu to switch between Overview, Cleaning, Visualizations, Forecasting, Insights, Reports, and Chat!")
+st.info("💡 **Quick Start Guide:** Use the left sidebar navigation menu to switch between Overview, Cleaning, Visualizations, Forecasting, Insights, Reports, Chat, and Executive Dashboards!")
+
