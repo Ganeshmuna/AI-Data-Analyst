@@ -85,18 +85,24 @@ if df is None or df.empty:
         df = load_data(sample_path)
         st.session_state['cleaned_df'] = df
 
+# Initialize selected template key
+if 'selected_template' not in st.session_state:
+    st.session_state['selected_template'] = 'amazon_sales'
+
 # Top Control & Template Selector Toolbar
-with st.expander("🎛️ 20+ Dashboard Templates Gallery & Smart Data Column Mapper", expanded=False):
+with st.expander("🎛️ 20+ Dashboard Templates Gallery & Smart Data Column Mapper", expanded=True):
     t_col1, t_col2 = st.columns([1, 1])
     
     with t_col1:
         template_keys = list(DASHBOARD_TEMPLATES.keys())
-        template_choice = st.selectbox(
+        selected_key = st.selectbox(
             "Select Dashboard Template (20+ Pre-built Industry Dashboards)",
             template_keys,
+            index=template_keys.index(st.session_state['selected_template']) if st.session_state['selected_template'] in template_keys else 0,
             format_func=lambda k: f"{DASHBOARD_TEMPLATES[k]['name']} ({DASHBOARD_TEMPLATES[k]['category']})"
         )
-        template_info = DASHBOARD_TEMPLATES[template_choice]
+        st.session_state['selected_template'] = selected_key
+        template_info = DASHBOARD_TEMPLATES[selected_key]
         st.info(f"**Description:** {template_info['description']}")
 
     with t_col2:
@@ -105,33 +111,43 @@ with st.expander("🎛️ 20+ Dashboard Templates Gallery & Smart Data Column Ma
         cols = [None] + list(df.columns)
 
         col_date = st.selectbox("Date Column", cols, index=cols.index(auto_map['date']) if auto_map['date'] in cols else 0)
-        col_sales = st.selectbox("Sales / Metric Column", cols, index=cols.index(auto_map['sales']) if auto_map['sales'] in cols else 0)
-        col_profit = st.selectbox("Profit Column", cols, index=cols.index(auto_map['profit']) if auto_map['profit'] in cols else 0)
+        col_sales = st.selectbox("Primary Metric Column", cols, index=cols.index(auto_map['sales']) if auto_map['sales'] in cols else 0)
+        col_profit = st.selectbox("Secondary Metric Column", cols, index=cols.index(auto_map['profit']) if auto_map['profit'] in cols else 0)
         col_cat = st.selectbox("Category Column", cols, index=cols.index(auto_map['category']) if auto_map['category'] in cols else 0)
         col_region = st.selectbox("Region / Filter Column", cols, index=cols.index(auto_map['region']) if auto_map['region'] in cols else 0)
         col_segment = st.selectbox("Segment Column", cols, index=cols.index(auto_map['segment']) if auto_map['segment'] in cols else 0)
-        col_payment = st.selectbox("Payment Mode Column", cols, index=cols.index(auto_map['payment']) if auto_map['payment'] in cols else 0)
-        col_ship = st.selectbox("Ship Mode Column", cols, index=cols.index(auto_map['ship_mode']) if auto_map['ship_mode'] in cols else 0)
+        col_payment = st.selectbox("Group By Field A", cols, index=cols.index(auto_map['payment']) if auto_map['payment'] in cols else 0)
+        col_ship = st.selectbox("Group By Field B", cols, index=cols.index(auto_map['ship_mode']) if auto_map['ship_mode'] in cols else 0)
 
-template_info = DASHBOARD_TEMPLATES.get('amazon_sales')
-auto_map = auto_map_columns(df)
-col_date = auto_map['date'] or (df.columns[0] if len(df.columns)>0 else None)
-col_sales = auto_map['sales'] or (df.columns[1] if len(df.columns)>1 else None)
-col_profit = auto_map['profit'] or col_sales
-col_cat = auto_map['category'] or (df.columns[2] if len(df.columns)>2 else None)
-col_region = auto_map['region'] or (df.columns[3] if len(df.columns)>3 else None)
-col_segment = auto_map['segment'] or col_cat
-col_payment = auto_map['payment'] or col_cat
-col_ship = auto_map['ship_mode'] or col_cat
+template_info = DASHBOARD_TEMPLATES.get(st.session_state.get('selected_template', 'amazon_sales'), DASHBOARD_TEMPLATES['amazon_sales'])
+dataset_name = st.session_state.get('dataset_name', '')
+
+# Dynamic Header Title per Template & Dataset
+clean_template_title = template_info['name'].replace("🛒", "").replace("💼", "").replace("📊", "").replace("🛍️", "").replace("🎯", "").replace("⚡", "").replace("👥", "").replace("📦", "").replace("🏥", "").replace("🏢", "").replace("🏦", "").replace("🍕", "").replace("🎧", "").replace("📱", "").replace("🏨", "").replace("🎓", "").replace("🚗", "").replace("🏗️", "").replace("🏋️", "").replace("🌐", "").strip().upper()
+
+if dataset_name and dataset_name != "None" and "Sample" not in dataset_name:
+    file_prefix = dataset_name.split('.')[0].replace('_', ' ').replace('-', ' ').upper()
+    dashboard_title = f"{file_prefix} - {clean_template_title}"
+else:
+    dashboard_title = clean_template_title
+
+col_date = col_date or auto_map['date'] or (df.columns[0] if len(df.columns)>0 else None)
+col_sales = col_sales or auto_map['sales'] or (df.columns[1] if len(df.columns)>1 else None)
+col_profit = col_profit or auto_map['profit'] or col_sales
+col_cat = col_cat or auto_map['category'] or (df.columns[2] if len(df.columns)>2 else None)
+col_region = col_region or auto_map['region'] or (df.columns[3] if len(df.columns)>3 else None)
+col_segment = col_segment or auto_map['segment'] or col_cat
+col_payment = col_payment or auto_map['payment'] or col_cat
+col_ship = col_ship or auto_map['ship_mode'] or col_cat
 
 # Slicer Region Buttons (Top Right Filter Tabs)
 regions = ["All"]
 if col_region and col_region in df.columns:
     regions += list(df[col_region].dropna().unique())
 
-st.markdown("""
+st.markdown(f"""
 <div class="pbi-header-container">
-    <div class="pbi-header-title">AMAZON STORE SALES DASHBOARD</div>
+    <div class="pbi-header-title">{dashboard_title}</div>
 </div>
 """, unsafe_allow_html=True)
 
