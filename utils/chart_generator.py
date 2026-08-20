@@ -190,3 +190,5 @@ def create_powerbi_dual_bar_chart(df, cat_col, val1_col, val2_col, title=""):
     )
     return fig
 
+
+# Cache invalidate trigger
